@@ -8,8 +8,8 @@
 # Usage: bash gemini_single.sh path_to_input_file path_to_output_directory
 # Note: No directory check is performed. Also, barcode is assumed to be the 2 chars before .vcf
 
-inputFile=$1                        # Annotated .vcf input file
-outputDir=$2                        # Output directory for query results files
+in_file=$1                        # Annotated .vcf input file
+out_dir=$2                        # Output directory for query results files
 
 # Define columns of interest. For more options see GEMINI's documentation
 cols="chrom, start, end, gene, exon, ref, alt, qual, type, cyto_band"
@@ -19,39 +19,36 @@ cols="${cols}, rs_ids, in_omim, clinvar_sig, clinvar_origin, clinvar_disease_nam
 cols="${cols}, polyphen_pred, polyphen_score, sift_pred, sift_score, pfam_domain"
 cols="${cols}, in_hm3, in_esp, in_1kg, aaf_1kg_all, aaf_1kg_eur, aaf_1kg_afr"
 
-bcLength=2                          # barcode length
-
-# ---- Load inputFIle into tmp_gS.db SQL database ----
-cp ${inputFile} tmp_vcf.vcf
-tmpDir="tmp_geminiOutputs"
+# ---- Load in_file into tmp_gS.db SQL database ----
+cp ${in_file} tmp_vcf.vcf
+tmp_dir="tmp_gemini_outputs"
 mkdir ${tmpDir}
 
-# The "time timeout -k 20 90" snippet is just for safety. If you're brave, you can remove it.
-time timeout -k 20 90 gemini load -v tmp_vcf.vcf -t VEP --cores 4 --skip-gerp-bp tmp_gS.db
-barcode=${inputFile%.*}             # These two steps extract the barcode
-barcode=${barcode:${#barcode} - ${bcLength}}
+gemini load -v tmp_vcf.vcf -t VEP --cores 4 --skip-gerp-bp tmp_gS.db
 
 # ---- Query database (inc. metaInfo) ----
-bash queryDatabase.sh ${barcode} ${cols}
+bash do_queries.sh ${cols}
 
-if [ -e ${tmpDir}/bar${barcode}_metaInfo.txt ]; then
-    rm ${tmpDir}/bar${barcode}_metaInfo.txt
+if [ -e ${tmp_dir}/metaInfo.txt ]; then
+    rm ${tmp_dir}/metaInfo.txt
 fi
 
-for inFile in ${tmpDir}/bar${barcode}_*.txt; do
-    wc -l ${inFile} >> ${tmpDir}/bar${barcode}_metaInfo.txt
+for in_file in ${tmp_dir}/*.txt; do
+    wc -l ${in_file} >> ${tmp_dir}/metaInfo.txt
 
-# ---- Move files to outputDir ----
-if [ -d ${outputDir}/queries ]; then
+# ---- Move files to out_dir ----
+if [ -d ${out_dir}/queries ]; then
     echo "Clobbering contents of queries folder..."
-    rm -r ${outputDir}/queries/*
+    rm -r ${out_dir}/queries/*
 else
     echo "Creating queries folder"
-    mkdir ${outputDir}/queries
+    mkdir ${out_dir}/queries
 fi
-mv ./tmp_geminiOutputs/bar${barcode}_metaInfo.txt ${outputDir}
-mv ./tmp_geminiOutputs/bar${barcode}_* ${outputDir}/queries/
+
+# NOTE: This works because metaInfo.txt gets moved _before_ the rest...
+mv ./tmp_gemini_outputs/metaInfo.txt ${output_dir}
+mv ./tmp_gemini_outputs/* ${output_dir}/queries/
 
 # ---- Cleanup ----
 rm ./tmp_gS.db ./tmp_vcf.vcf
-rmdir ${tmpDir}
+rmdir ${tmp_dir}

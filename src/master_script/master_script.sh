@@ -6,34 +6,33 @@
 # to make relative paths work.
 # Usage: bash master_script.sh <path_to_VCF_directory> <path_to_output_directory> 1/0
 
-inputDir=$1                 # Path to the directory containing the .vcf.gz input files
+in_dir=$1                 # Path to the directory containing the .vcf.gz input files
                             # (no trailing '/')
-outputDir=$2                # Path to the directory where the annotated .vcf output files
+out_dir=$2                # Path to the directory where the annotated .vcf output files
                             # should be generated (no trailing '/')
 force_overwrite_flag=$3     # Flag to force overwriting of files (used by VEP)
                             # (pass 1 to overwrite, and 0 to preserve)
 
-# Check whether outputDir exists (1) and is empty (2)
-if ! [ -d ${outputDir} ]; then
+# Check whether out_dir exists (1) and is empty (2)
+if ! [ -d ${out_dir} ]; then
     echo "Create main output directory first..."
     exit 1
 else
-    if ! [ -z "$(ls -A ${outputDir})" ]; then
+    if ! [ -z "$(ls -A ${out_dir})" ]; then
         echo "Empty main output directory first..."
         exit 1
     fi
 fi
 
-# ---- Prepare outputDir ----
-mkdir ${outputDir}/vepOutput
-cp ${inputDir}/barcodeCypher.csv ${outputDir}/vepOutput
+# ---- Prepare out_dir ----
+mkdir ${out_dir}/vep_out
 
-#  ---- Run VEP ----
+# ---- Run VEP ----
 cd ../vep_scripts
-bash vep_batch.sh ${inputDir} ${outputDir}/vepOutput/ ${force_overwrite_flag}
+bash vep_batch.sh ${in_dir} ${out_dir}/vep_out/ ${force_overwrite_flag}
 
-#  ---- Run gemini ----
+# ---- Run GEMINI ----
 cd ../gemini_scripts
-bash gemini_batch.sh ${outputDir}/vepOutput/ ${outputDir}
+bash gemini_batch.sh ${out_dir}/vep_out/ ${out_dir}
 
 cd ../master_script

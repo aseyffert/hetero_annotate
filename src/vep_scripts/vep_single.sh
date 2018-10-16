@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 # NOTE: Filenames starting with "tmp_" indicate temporary files that are deleted
 
-inputFile=$1				# Path to input .vcf.gz file
-outputFile=$2				# Path to output .vcf file
+in_file=$1				# Path to input .vcf.gz file
+out_file=$2				# Path to output .vcf file
 force_overwrite_flag=$3			# Flag to force overwriting of files (used by VEP)
  					# pass 1 to overwrite, and 0 to preserve
 
 # Directory where VEP is installed.
 # This directory should contain variant_effect_predictor.pl
 # This WILL differ for your installation
-vepDir="ETv81/scripts/variant_effect_predictor"
+# IDEA: Move this to the top, above some "no fiddling" line.
+vep_dir="ETv81/scripts/variant_effect_predictor"
 
 # Specify the .vcf annotation fields. They can be added in groups as below.
 fields="Consequence,Codons,Amino_acids,Gene,SYMBOL,Feature,EXON"
@@ -23,8 +24,8 @@ else
 fi
 
 # ---- Run VEP ----
-cp ${inputFile} ../${vepDir}/tmp_input.vcf.gz
-cd ../${vepDir}
+cp ${in_file} ../${vep_dir}/tmp_input.vcf.gz
+cd ../${vep_dir}
 echo "... running variant_effect_predictor.pl..."
 # What follows is a single command spread over multiple lines for readability.
 # The "\" character indicates that the command continues on the next line.
@@ -47,5 +48,5 @@ perl variant_effect_predictor.pl -i tmp_input.vcf.gz -o tmp_output.vcf \
 # ---- Cleanup ----
 rm tmp_input.vcf.gz
 cd -
-mv ../${vepDir}/tmp_output.vcf ${outputFile}
-mv ../${vepDir}/tmp_output.vcf_summary.html ${outputFile}_summary.html
+mv ../${vep_dir}/tmp_output.vcf ${out_file}
+mv ../${vep_dir}/tmp_output.vcf_summary.html ${out_file}_summary.html
