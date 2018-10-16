@@ -1,0 +1,24 @@
+LoF,is_lof = 1
+RareNovelLoF,is_lof = 1 and (in_dbsnp = 0 or aaf <= 0.01)
+omimClinivar,in_omim = 1 or clinvar_disease_name is not NULL
+siftPolyphen,sift_pred = 'deleterious' or polyphen_pred = 'probably_damaging'
+allVariants,
+coding,is_coding = 1
+nonCoding,is_coding = 0
+codingSynonymous,is_coding = 1 and impact LIKE 'synonymous_coding'
+codingNonSynonymous,is_coding = 1 and impact LIKE 'non_syn_coding'
+codingStopgain,is_coding = 1 and impact LIKE 'stop_gain'
+codingStoploss,is_coding = 1 and impact LIKE 'stop_loss'
+codingFrameshift,is_coding = 1 and impact LIKE 'frame_shift'
+reported,in_dbsnp = 1
+reportedLoF,is_lof = 1 and in_dbsnp = 1
+reportedNonLoF,is_lof = 0 and in_dbsnp = 1
+reportedCoding,in_dbsnp = 1 and is_coding = 1
+reportedCodingLoF,is_lof = 1 and in_dbsnp = 1 and is_coding = 1
+reportedCodingNonLoF,is_lof = 0 and in_dbsnp = 1 and is_coding = 1
+novel,in_dbsnp = 0
+novelLoF,is_lof = 1 and in_dbsnp = 0
+novelNonLoF,is_lof = 0 and in_dbsnp = 0
+novelCoding,in_dbsnp = 0 and is_coding = 1
+novelCodingLoF,is_lof = 1 and in_dbsnp = 0 and is_coding = 1
+novelCodingNonLoF,is_lof = 0 and in_dbsnp = 0 and is_coding = 1
