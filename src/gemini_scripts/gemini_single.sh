@@ -21,20 +21,19 @@ cols="${cols}, in_hm3, in_esp, in_1kg, aaf_1kg_all, aaf_1kg_eur, aaf_1kg_afr"
 
 # ---- Load in_file into tmp_gS.db SQL database ----
 cp ${in_file} tmp_vcf.vcf
-tmp_dir="tmp_gemini_outputs"
-mkdir ${tmpDir}
+mkdir tmp_out_dir
 
 gemini load -v tmp_vcf.vcf -t VEP --cores 4 --skip-gerp-bp tmp_gS.db
 
 # ---- Query database (inc. metaInfo) ----
 bash do_queries.sh ${cols}
 
-if [ -e ${tmp_dir}/metaInfo.txt ]; then
-    rm ${tmp_dir}/metaInfo.txt
+if [ -e tmp_out_dir/meta_info.txt ]; then
+    rm tmp_out_dir/meta_info.txt
 fi
 
-for in_file in ${tmp_dir}/*.txt; do
-    wc -l ${in_file} >> ${tmp_dir}/metaInfo.txt
+for in_file in tmp_out_dir/*.txt; do
+    wc -l ${in_file} >> tmp_out_dir/meta_info.txt
 
 # ---- Move files to out_dir ----
 if [ -d ${out_dir}/queries ]; then
@@ -45,10 +44,10 @@ else
     mkdir ${out_dir}/queries
 fi
 
-# NOTE: This works because metaInfo.txt gets moved _before_ the rest...
-mv ./tmp_gemini_outputs/metaInfo.txt ${output_dir}
-mv ./tmp_gemini_outputs/* ${output_dir}/queries/
+# NOTE: This works because meta_info.txt gets moved _before_ the rest...
+mv ./tmp_out_dir/meta_info.txt ${output_dir}
+mv ./tmp_out_dir/* ${out_dir}/queries/
 
 # ---- Cleanup ----
 rm ./tmp_gS.db ./tmp_vcf.vcf
-rmdir ${tmp_dir}
+rmdir tmp_out_dir

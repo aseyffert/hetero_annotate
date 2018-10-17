@@ -12,14 +12,14 @@ out_dir=$2                # Path to the directory where the annotated .vcf.gz ou
 # Note: This procedure is safest with ~/ and absolute paths. Relative paths might break it...
 for in_file in ${in_dir}/*.vcf
 do
-    echo "Processing $in_file [GEMINI]..."
+    echo "Processing ${in_file} [GEMINI]..."
 
     out_subdir="$(basename ${in_file} .vcf)"
 
     # ---- Create output subdirectory (each file gets its own) ----
-    outputFolder=${outputDir}/${out_subdir}
-    mkdir ${outputFolder}
+    out_dir_full=${out_dir}/${out_subdir}
+    mkdir ${out_dir_full}
 
     # ---- Run GEMINI ----
-    bash gemini_single.sh ${inputFile} ${outputFolder}
+    bash gemini_single.sh ${in_file} ${out_dir_full}
 done

@@ -10,10 +10,9 @@ out_dir=$2                # Path to the directory where the annotated .vcf outpu
 
 # ---- Run VEP of each .vcf.gz file in in_dir ----
 # Note: This procedure is safest with ~/ and absolute paths. Relative paths might break it...
-for in_file_path in ${in_dir}/*.vcf.gz
+for in_file in ${in_dir}/*.vcf.gz
 do
-    echo "Processing $in_file_path [VEP]..."
-    out_file_name=${in_file_path%.*}            # removes .gz from the filename
-    out_file_name=${out_file_name##*/}          # removes path (extracts only filename)
-    bash vep_single.sh $in_file_path ${out_dir}/$out_file_name
+    echo "Processing ${in_file} [VEP]..."
+    out_file_name="$(basename ${in_file} .gz)"
+    bash vep_single.sh ${in_file} ${out_dir}/${out_file_name}
 done
