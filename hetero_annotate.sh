@@ -10,8 +10,6 @@ in_dir=$1                 # Path to the directory containing the .vcf.gz input f
                             # (no trailing '/')
 out_dir=$2                # Path to the directory where the annotated .vcf output files
                             # should be generated (no trailing '/')
-force_overwrite_flag=$3     # Flag to force overwriting of files (used by VEP)
-                            # (pass 1 to overwrite, and 0 to preserve)
 
 # Check whether out_dir exists (1) and is empty (2)
 if ! [ -d ${out_dir} ]; then
@@ -28,11 +26,11 @@ fi
 mkdir ${out_dir}/vep_out
 
 # ---- Run VEP ----
-cd ../vep_scripts
-bash vep_batch.sh ${in_dir} ${out_dir}/vep_out/ ${force_overwrite_flag}
+cd src/vep_scripts
+bash vep_batch.sh ${in_dir} ${out_dir}/vep_out/
 
 # ---- Run GEMINI ----
 cd ../gemini_scripts
 bash gemini_batch.sh ${out_dir}/vep_out/ ${out_dir}
 
-cd ../master_script
+cd ../../
