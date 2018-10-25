@@ -1,39 +1,36 @@
 #!/usr/bin/env bash
+# This script takes an Ion Torrent VCF file and annotates it using Ensembl VEP
+# Example: bash vep_sinle.sh /path/to/vcf/input.vcf.gz /path/to/vcf/input.vcf
+
 # NOTE: Filenames starting with "tmp_" indicate temporary files that are deleted
 
+# ==== Preparation ====
+# Directory where VEP is installed. [This may differ for your installation]
+vep_dir="${HOME}/scripts/ensembl-vep"
+
+# ---- VCF annotation fields ----
+# Specify the .vcf annotation fields. They can be added in groups as below.
+vep_fields="Consequence,Codons,Amino_acids,Gene,SYMBOL,Feature,EXON"
+vep_fields="${vep_fields},PolyPhen,SIFT,check_alleles"
+
+# ---- VEP arguments ----
+# Specify the arguments to pass to VEP. They can be added in groups as below.
+# NOTE: There is a space after "${vep_args}" in each additional group.
+vep_args="--cache --offline --format vcf --vcf --buffer_size 25000"
+vep_args="${vep_args} --sift b --polyphen b --symbol --numbers"
+vep_args="${vep_args} --af_1kg --pubmed"
+vep_args="${vep_args} --fields ${vep_fields}"
+
+# ---- Handle arguments ----
 in_file=$1				# Path to input .vcf.gz file
 out_file=$2				# Path to output .vcf file
 
-# Directory where VEP is installed.
-# This directory should contain variant_effect_predictor.pl
-# This WILL differ for your installation
-# IDEA: Move this to the top, above some "no fiddling" line.
-vep_dir="${HOME}/scripts/ensembl-vep"
-
-# Specify the .vcf annotation fields. They can be added in groups as below.
-fields="Consequence,Codons,Amino_acids,Gene,SYMBOL,Feature,EXON"
-fields="${fields},PolyPhen,SIFT,check_alleles"
-
-# ---- Run VEP ----
+# ==== Run VEP ====
 cp ${in_file} ${vep_dir}/tmp_input.vcf.gz
 cd ${vep_dir}
+
 echo "... running Ensembl VEP..."
-# What follows is a single command spread over multiple lines for readability.
-# The "\" character indicates that the command continues on the next line.
-# To run this command in the command line delete the "\" characters and newlines
-./vep -i tmp_input.vcf.gz -o tmp_output.vcf \
-	--cache \
-	--offline \
-	--format vcf \
-	--vcf \
-	--buffer_size 25000 \
-	--sift b \
-	--polyphen b \
-	--symbol \
-	--numbers \
-	--af_1kg \
-	--pubmed \
-	--fields ${fields}
+./vep -i tmp_input.vcf.gz -o tmp_output.vcf ${vep_args}
 
 # ---- Cleanup ----
 rm tmp_input.vcf.gz

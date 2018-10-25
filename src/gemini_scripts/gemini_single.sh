@@ -1,37 +1,43 @@
 #!/usr/bin/env bash
-# Description: This script aims to take a Ensembl VEP annotated .vcf file and
-# load it into GEMINI.
-# It produces a set list of output files, grouping the variants logically according to
-# certain criteria
-# and combinations of criteria.
-# This list may be expanded as needed.
-# Usage: bash gemini_single.sh path_to_input_file path_to_output_directory
+# This script takes a VEP-annotated VCF file and loads it into a SQLite
+#   database for querying. It produces a set of variant lists, as well as a
+#   meta_info.txt file in the output directory.
+# Example: bash gemini_single.sh /path/to/vcf/input.vcf /path/to/output/dir/
 
-in_file=$1                        # Annotated .vcf input file
-out_dir=$2                        # Output directory for query results files
-
+# ==== Preparation ====
+# Specify the number of CPU cores GEMINI can use, and the queries_spec file
 num_cores=4
 qfile="queries_spec.txt"
 
-# Define columns of interest. For more options see GEMINI's documentation
+# ---- GEMINI query columns ----
+# Define columns of interest. They can be added in groups as below.
 cols="chrom, start, end, gene, exon, ref, alt, qual, type, cyto_band"
-cols="${cols}, num_hom_ref, num_hom_alt, num_het, is_coding, codon_change, aa_change"
-cols="${cols}, impact, impact_severity, is_lof, is_conserved, depth, qual_depth"
-cols="${cols}, rs_ids, in_omim, clinvar_sig, clinvar_origin, clinvar_disease_name"
-cols="${cols}, polyphen_pred, polyphen_score, sift_pred, sift_score, pfam_domain"
+cols="${cols}, is_coding, codon_change, aa_change"
+cols="${cols}, num_hom_ref, num_hom_alt, num_het"
+cols="${cols}, impact, impact_severity, is_lof, is_conserved"
+cols="${cols}, depth, qual_depth, rs_ids, in_omim, pfam_domain"
+cols="${cols}, clinvar_sig, clinvar_origin, clinvar_disease_name"
+cols="${cols}, polyphen_pred, polyphen_score, sift_pred, sift_score"
 cols="${cols}, in_hm3, in_esp, in_1kg, aaf_1kg_all, aaf_1kg_eur, aaf_1kg_afr"
 
-# ---- Load in_file into tmp_gS.db SQL database ----
+# ---- GEMINI load arguments ----
+gemini_args="--skip-gerp-bp"
+
+# ---- Handle arguments ----
+in_file=$1                        # Annotated .vcf input file
+out_dir=$2                        # Output directory for query results files
+
+# ==== Run GEMINI ====
+# ---- Load into SQLite database ----
 cp ${in_file} tmp_vcf.vcf
 mkdir tmp_out_dir
 
-gemini load -v tmp_vcf.vcf -t VEP --cores ${num_cores} --skip-gerp-bp tmp_gS.db
+gemini load -v tmp_vcf.vcf -t VEP --cores ${num_cores} ${gemini_args} tmp_gS.db
 
-# ---- Query database (inc. metaInfo) ----
+# ---- Query database ----
 echo "Querying..."
 while read line
 do
-	# TODO: Reduce the parse to a single line
 	qname=$(echo ${line} | cut -d "," -f 1)
 	qsnip=$(echo ${line} | cut -d "," -f 2)
     query="select ${cols} from variants where ${qsnip}"
@@ -42,6 +48,7 @@ do
 
 done < ${qfile}
 
+# ---- Generate meta_info.txt ----
 for in_file in tmp_out_dir/*.txt; do
     wc -l ${in_file} >> tmp_out_dir/meta_info.txt
 

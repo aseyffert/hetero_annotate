@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Description: This script is an interface for vep_single.sh which runs the VEP script
-# for each .vcf input file in a given directory. It generates output in a second given directory
-# Usage: bash vep_batch.sh path_to_input_directory path_to_output_directory force_overwrite
+# This script is a wrapper for vep_single.sh which calls it for each .vcf.gz
+#   file in the input directory. It outputs a VEP-annotated VCF file for each
+#   input file in the output directory.
+# Example: bash vep_batch.sh /path/to/input/dir/ /path/to/output/dir/
+# NOTE: Absolute paths are safest since they're unambiguous
 
-in_dir=$1                 # Path to the directory containing the .vcf.gz input files
-                            # (no trailing '/')
-out_dir=$2                # Path to the directory where the annotated .vcf output files
-                            # should be generated (no trailing '/')
+# ---- Handle arguments ----
+in_dir=$1                 # Path to input directory
+out_dir=$2                # Path to output directory
 
-# ---- Run VEP of each .vcf.gz file in in_dir ----
-# Note: This procedure is safest with ~/ and absolute paths. Relative paths might break it...
+# ---- Run VEP for batch ----
 for in_file in ${in_dir}/*.vcf.gz
 do
     echo "Processing ${in_file} [VEP]..."
