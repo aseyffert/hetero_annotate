@@ -8,7 +8,7 @@ out_file=$2				# Path to output .vcf file
 # This directory should contain variant_effect_predictor.pl
 # This WILL differ for your installation
 # IDEA: Move this to the top, above some "no fiddling" line.
-vep_dir="${HOME}/scripts/vep"
+vep_dir="${HOME}/scripts/ensembl-vep"
 
 # Specify the .vcf annotation fields. They can be added in groups as below.
 fields="Consequence,Codons,Amino_acids,Gene,SYMBOL,Feature,EXON"

@@ -6,10 +6,12 @@
 # and combinations of criteria.
 # This list may be expanded as needed.
 # Usage: bash gemini_single.sh path_to_input_file path_to_output_directory
-# Note: No directory check is performed. Also, barcode is assumed to be the 2 chars before .vcf
 
 in_file=$1                        # Annotated .vcf input file
 out_dir=$2                        # Output directory for query results files
+
+num_cores=4
+qfile="queries_spec.txt"
 
 # Define columns of interest. For more options see GEMINI's documentation
 cols="chrom, start, end, gene, exon, ref, alt, qual, type, cyto_band"
@@ -23,14 +25,21 @@ cols="${cols}, in_hm3, in_esp, in_1kg, aaf_1kg_all, aaf_1kg_eur, aaf_1kg_afr"
 cp ${in_file} tmp_vcf.vcf
 mkdir tmp_out_dir
 
-gemini load -v tmp_vcf.vcf -t VEP --cores 4 --skip-gerp-bp tmp_gS.db
+gemini load -v tmp_vcf.vcf -t VEP --cores ${num_cores} --skip-gerp-bp tmp_gS.db
 
 # ---- Query database (inc. metaInfo) ----
-bash do_queries.sh ${cols}
+echo "Querying..."
+while read line
+do
+	# TODO: Reduce the parse to a single line
+	qname=$(echo ${line} | cut -d "," -f 1)
+	query=$(echo ${line} | cut -d "," -f 2)
 
-if [ -e tmp_out_dir/meta_info.txt ]; then
-    rm tmp_out_dir/meta_info.txt
-fi
+	printf "... ${qname}...\n"
+	echo "gemini query -q ${query} tmp_gS.db > tmp_out_dir/${qname}.txt"
+	printf "done\n"
+
+done < ${qfile}
 
 for in_file in tmp_out_dir/*.txt; do
     wc -l ${in_file} >> tmp_out_dir/meta_info.txt
