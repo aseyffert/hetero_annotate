@@ -6,6 +6,7 @@
 # Example: bash hetero_annotate.sh /path/to/input/dir/ /path/to/output/dir/
 # NOTE: Absolute paths are safest since they're unambiguous
 
+# ---- Handle arguments ----
 in_dir=$1                 # Path to input directory
 out_dir=$2                # Path to output directory
 

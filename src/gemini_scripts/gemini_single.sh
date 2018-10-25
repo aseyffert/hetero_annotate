@@ -38,14 +38,13 @@ gemini load -v tmp_vcf.vcf -t VEP --cores ${num_cores} ${gemini_args} tmp_gS.db
 echo "Querying..."
 while read line
 do
-	qname=$(echo ${line} | cut -d "," -f 1)
-	qsnip=$(echo ${line} | cut -d "," -f 2)
-    query="select ${cols} from variants where ${qsnip}"
+		qname=$(echo ${line} | cut -d "," -f 1)
+		qsnip=$(echo ${line} | cut -d "," -f 2)
+	  query="select ${cols} from variants where ${qsnip}"
 
-	printf "... ${qname}...\n"
-	echo gemini query -q "${query}" tmp_gS.db > tmp_out_dir/${qname}.txt
-	printf "done\n"
-
+		printf "... ${qname}...\n"
+		echo gemini query -q "${query}" tmp_gS.db > tmp_out_dir/${qname}.txt
+		printf "done\n"
 done < ${qfile}
 
 # ---- Generate meta_info.txt ----
