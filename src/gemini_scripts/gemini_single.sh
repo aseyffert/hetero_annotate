@@ -33,10 +33,11 @@ while read line
 do
 	# TODO: Reduce the parse to a single line
 	qname=$(echo ${line} | cut -d "," -f 1)
-	query=$(echo ${line} | cut -d "," -f 2)
+	qsnip=$(echo ${line} | cut -d "," -f 2)
+    query="select ${cols} from variants where ${qsnip}"
 
 	printf "... ${qname}...\n"
-	echo "gemini query -q ${query} tmp_gS.db > tmp_out_dir/${qname}.txt"
+	echo gemini query -q "${query}" tmp_gS.db > tmp_out_dir/${qname}.txt
 	printf "done\n"
 
 done < ${qfile}
