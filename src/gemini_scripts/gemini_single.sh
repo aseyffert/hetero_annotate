@@ -7,7 +7,7 @@
 # ==== Preparation ====
 # Specify the number of CPU cores GEMINI can use, and the queries_spec file
 num_cores=4
-qfile="queries_spec.txt"
+qfile="../../queries_spec.txt"
 
 # ---- GEMINI query columns ----
 # Define columns of interest. They can be added in groups as below.
