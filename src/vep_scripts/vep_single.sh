@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # This script takes an Ion Torrent VCF file and annotates it using Ensembl VEP
-# Example: bash vep_sinle.sh /path/to/vcf/input.vcf.gz /path/to/vcf/input.vcf
+# Example: bash vep_single.sh /path/to/vcf/input.vcf.gz /path/to/vcf/input.vcf
 
 # NOTE: Filenames starting with "tmp_" indicate temporary files that are deleted
 
 # ==== Preparation ====
+num_forks=4
 # Directory where VEP is installed. [This may differ for your installation]
 vep_dir="${HOME}/scripts/ensembl-vep"
 
@@ -30,7 +31,7 @@ cp ${in_file} ${vep_dir}/tmp_input.vcf.gz
 cd ${vep_dir}
 
 echo "... running Ensembl VEP..."
-./vep -i tmp_input.vcf.gz -o tmp_output.vcf ${vep_args}
+./vep -i tmp_input.vcf.gz -o tmp_output.vcf -fork ${num_forks} ${vep_args}
 
 # ---- Cleanup ----
 rm tmp_input.vcf.gz
