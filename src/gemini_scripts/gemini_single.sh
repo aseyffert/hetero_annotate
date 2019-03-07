@@ -46,10 +46,12 @@ do
 		echo gemini query -q "${query}" tmp_gS.db > tmp_out_dir/${qname}.txt
 		printf "done\n"
 done < ${qfile}
+printf "Querying done.\n"
 
 # ---- Generate meta_info.txt ----
 for in_file in tmp_out_dir/*.txt; do
     wc -l ${in_file} >> tmp_out_dir/meta_info.txt
+done
 
 # ---- Move files to out_dir ----
 if [ -d ${out_dir}/queries ]; then
